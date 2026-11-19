@@ -3,11 +3,14 @@ name: Code GitHub Actions
 on:
   push:
     branches:
-        - dev
+      - dev
 
 jobs:
   run-tests:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./container
 
     steps:
       - name: Checkout the repo
@@ -27,7 +30,7 @@ jobs:
         run: npm i --save-dev @types/express
 
       - name: Build the project
-        run: tsc --project tsconfig.json
+        run: npx tsc --project tsconfig.json
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
@@ -54,6 +57,6 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
           IMAGE_TAG: ${{ env.commit_hash }}-${{ env.timestamp }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest

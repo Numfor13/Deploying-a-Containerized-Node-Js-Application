@@ -25,13 +25,13 @@ jobs:
         run: |
           npm install
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@master
+        uses: aws-actions/configure-aws-credentials@v3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: "us-east-1"
       - name: Deploy to AWS
-        run: cdk deploy InfraStructureStack
+        run: cdk deploy ContainerizedAppStack --require-approval never
       
       - name: Retrieve ALB DNS name
         id: alb_dns
@@ -39,5 +39,4 @@ jobs:
           alb_name="eda-ecs-alb-eda"
           alb_dns=$(aws elbv2 describe-load-balancers --names $alb_name --query "LoadBalancers[0].DNSName" --output text)
           echo "ALB DNS: $alb_dns"
-          echo "::set-output name=alb_dns::$alb_dns"
-
+          echo "alb_dns=$alb_dns" >> $GITHUB_OUTPUT
